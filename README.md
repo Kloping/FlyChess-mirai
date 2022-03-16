@@ -22,3 +22,8 @@
 
     /flyChess clearTemp    # 清除缓存图片
     /flyChess overGame    # 结束游戏
+
+
+存在bug请及时开 反馈/issue 
+
+感谢您的使用/游玩

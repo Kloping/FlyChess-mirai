@@ -1,6 +1,7 @@
 package io.github.Kloping;
 
 import io.github.kloping.io.ReadUtils;
+import net.mamoe.mirai.console.command.CommandManager;
 import net.mamoe.mirai.console.extension.PluginComponentStorage;
 import net.mamoe.mirai.console.plugin.jvm.JavaPlugin;
 import net.mamoe.mirai.console.plugin.jvm.JvmPluginDescriptionBuilder;
@@ -35,6 +36,7 @@ public class FlyChess extends JavaPlugin {
 
     @Override
     public void onEnable() {
+        CommandManager.INSTANCE.registerCommand(CommandLine.INSTANCE, true);
         GlobalEventChannel.INSTANCE.registerListenerHost(new ListenerHost() {
             @EventHandler
             public void onMessage(@NotNull GroupMessageEvent event) throws Exception {

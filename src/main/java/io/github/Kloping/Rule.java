@@ -95,6 +95,9 @@ public class Rule {
     }
 
     public static Object start() throws IOException {
+        if (chess.sides.size() >= 2) {
+            return "人数不足两人";
+        }
         try {
             isStarted = true;
             chess.next();
@@ -225,9 +228,8 @@ public class Rule {
         if (playWin(color)) {
             context.sendMessage("该玩家获得了胜利");
             if (winAll()) {
-                context.sendMessage("游戏结束\n耗时:" + getLoseTime());
-                tipsList();
                 destroy();
+                tipsList();
             }
         }
     }
@@ -276,9 +278,10 @@ public class Rule {
         return sb.toString();
     }
 
-    private static void destroy() {
+    public static void destroy() {
         chess = null;
         isStarted = false;
+        context.sendMessage("游戏结束\n耗时:" + getLoseTime());
     }
 
     private static List<Long> pl = new LinkedList<>();
@@ -290,6 +293,7 @@ public class Rule {
             builder.append("第 " + i).append(new At(aLong.longValue())).append("\n");
         }
         context.sendMessage(builder.build());
+        pl.clear();
     }
 
     private static boolean winAll() {

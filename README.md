@@ -18,3 +18,7 @@
 
 ![img_1.png](img_1.png)
 
+配合 [chat-command](https://github.com/project-mirai/chat-command)
+
+    /flyChess clearTemp    # 清除缓存图片
+    /flyChess overGame    # 结束游戏

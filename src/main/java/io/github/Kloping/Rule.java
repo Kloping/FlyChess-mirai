@@ -3,7 +3,6 @@ package io.github.Kloping;
 import net.mamoe.mirai.contact.Contact;
 import net.mamoe.mirai.message.data.At;
 import net.mamoe.mirai.message.data.Image;
-import net.mamoe.mirai.message.data.MessageChain;
 import net.mamoe.mirai.message.data.MessageChainBuilder;
 
 import javax.imageio.ImageIO;
@@ -44,32 +43,32 @@ public class Rule {
         if (player1 <= 0) {
             player1 = q;
             chess.addSide(Side.initBlue().setQ(q));
-            return drawThis();
+            return drawThis().plus("加入成功");
         }
         if (player2 <= 0) {
             player2 = q;
             chess.addSide(Side.initYellow().setQ(q));
-            return drawThis();
+            return drawThis().plus("加入成功");
         }
         if (player3 <= 0) {
             player3 = q;
             chess.addSide(Side.initGreen().setQ(q));
-            return drawThis();
+            return drawThis().plus("加入成功");
         }
         if (player4 <= 0) {
             player4 = q;
             chess.addSide(Side.initRed().setQ(q));
             start();
-            return drawThis();
+            return drawThis().plus("加入成功");
         }
         return null;
     }
 
     private static boolean joined(long q) {
-        return player1 == q || player2 == 1 || player3 == q || player4 == q;
+        return player1 == q || player2 == q || player3 == q || player4 == q;
     }
 
-    private static MessageChain drawThis() throws IOException {
+    private static Image drawThis() throws IOException {
         java.awt.Image image = chess.getFrame();
         image = putImage(image, player1, blue, player2, yellow);
         image = putImage(image, player3, green, player4, red);
@@ -83,7 +82,7 @@ public class Rule {
         file.createNewFile();
         ImageIO.write((RenderedImage) image, "jpg", file);
         Image im = Contact.uploadImage(context, file);
-        return im.plus("加入成功");
+        return im;
     }
 
     private static java.awt.Image putImage(java.awt.Image image, long pl1, Position p1, long pl2, Position p2) throws IOException {
@@ -270,10 +269,10 @@ public class Rule {
             sb.append(hour).append("小时");
         }
         if (minutes > 0) {
-            sb.append(day).append("分钟");
+            sb.append(minutes).append("分钟");
         }
         if (seconds > 0) {
-            sb.append(day).append("秒");
+            sb.append(seconds).append("秒");
         }
         return sb.toString();
     }
@@ -281,6 +280,10 @@ public class Rule {
     public static void destroy() {
         chess = null;
         isStarted = false;
+        player1 = -1;
+        player2 = -1;
+        player3 = -1;
+        player4 = -1;
         context.sendMessage("游戏结束\n耗时:" + getLoseTime());
     }
 

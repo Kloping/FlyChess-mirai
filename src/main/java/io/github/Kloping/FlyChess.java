@@ -26,7 +26,7 @@ public class FlyChess extends JavaPlugin {
     public static FlyChess INSTANCE = new FlyChess();
 
     public FlyChess() {
-        super(new JvmPluginDescriptionBuilder("com.github.kloping.FlyChess", "1.0").info("飞行棋插件").build());
+        super(new JvmPluginDescriptionBuilder("com.github.kloping.FlyChess", "1.1").info("飞行棋插件").build());
     }
 
     @Override

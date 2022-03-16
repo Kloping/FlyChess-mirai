@@ -1,5 +1,10 @@
 ### Maven template
+config
+bots
 target/
+data
+plugins
+temp
 pom.xml.tag
 pom.xml.releaseBackup
 pom.xml.versionsBackup

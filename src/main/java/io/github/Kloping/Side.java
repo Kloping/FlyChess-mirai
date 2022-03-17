@@ -2,6 +2,7 @@ package io.github.Kloping;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
+import io.github.kloping.map.MapUtils;
 
 import java.awt.image.BufferedImage;
 import java.io.IOException;
@@ -54,8 +55,18 @@ public class Side {
         return pieces;
     }
 
+    public boolean test(int step) {
+        if (step == 6 && up0 == 6 && up1 == 6) {
+            Rule.rollback(this);
+            return true;
+        }
+        return false;
+    }
+
     public void step(int step, int index) {
         pieces[index].jumpStep(step);
+        if (pieces[index].getPosition().getId() != null)
+            MapUtils.append(Rule.chess.positionId2PiecesMap, pieces[index].getPosition().getId(), pieces[index]);
         up1 = up0;
         up0 = step;
     }
@@ -69,19 +80,19 @@ public class Side {
     }
 
     public static Side initRed() throws IOException {
-        return initSide("readCoord.json", Pieces.SidePieces.RED, Road.RED.copy());
+        return initSide("readCoord.json", Pieces.SidePieces.RED, Road.RED);
     }
 
     public static Side initBlue() throws IOException {
-        return initSide("blueCoord.json", Pieces.SidePieces.BLUE, Road.BLUE.copy());
+        return initSide("blueCoord.json", Pieces.SidePieces.BLUE, Road.BLUE);
     }
 
     public static Side initGreen() throws IOException {
-        return initSide("greenCoord.json", Pieces.SidePieces.GREEN, Road.GREEN.copy());
+        return initSide("greenCoord.json", Pieces.SidePieces.GREEN, Road.GREEN);
     }
 
     public static Side initYellow() throws IOException {
-        return initSide("yellowCoord.json", Pieces.SidePieces.YELLOW, Road.YELLOW.copy());
+        return initSide("yellowCoord.json", Pieces.SidePieces.YELLOW, Road.YELLOW);
     }
 
     public static Side initSide(String path, Pieces.SidePieces res, Road road) throws IOException {
@@ -91,7 +102,7 @@ public class Side {
         BufferedImage bi = (BufferedImage) res.getImage();
         List<Pieces> list = new LinkedList<>();
         for (Position position : positions) {
-            Pieces pieces = new Pieces(position, bi, road);
+            Pieces pieces = new Pieces(position, bi, road.copy());
             pieces.setColor(res.color);
             list.add(pieces);
         }

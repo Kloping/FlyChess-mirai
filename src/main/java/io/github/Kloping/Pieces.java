@@ -5,6 +5,7 @@ import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.net.URL;
+import java.util.Objects;
 
 import static io.github.Kloping.FlyChess.getUrlsFrom;
 import static io.github.Kloping.Position.ID2POSITION;
@@ -15,6 +16,7 @@ import static io.github.Kloping.Position.POSITION2ID;
  */
 public class Pieces {
     private Position position;
+    private Position oPosition;
     private Image icon;
     private String color;
     private Road road;
@@ -23,6 +25,7 @@ public class Pieces {
 
     public Pieces(Position position, Image icon, Road road) {
         this.position = position;
+        this.oPosition = position;
         this.icon = icon;
         this.road = road;
     }
@@ -56,11 +59,10 @@ public class Pieces {
     }
 
     public void jumpStep(int r) {
+        System.out.println("will step " + r);
         if (win) return;
         if (!isReady) return;
-        for (int i = 0; i < r; i++) {
-            this.position = road.next();
-        }
+        this.position = road.next(r);
         testState();
     }
 
@@ -73,19 +75,42 @@ public class Pieces {
         return isReady;
     }
 
+    public void reset() {
+        getRoad().setIndex(0);
+        setReady(false);
+        this.position = oPosition;
+    }
+
     private void testState() {
         if ("win".equalsIgnoreCase(this.position.getState())) {
             Rule.win(this, color);
             win = true;
         }
         if (this.position.getColor() == null) return;
+        if (this.position.getR() != null) return;
+        if (this.position.getColor().equalsIgnoreCase(this.color)) {
+            this.position = getNextColor(color);
+            Rule.tipsJump();
+        }
+        tryAttack();
         if (this.position.getColor().equalsIgnoreCase(this.color)) {
             if (this.position.getS() != null) {
                 this.position = ID2POSITION.get(Integer.valueOf(this.position.getS()));
                 Rule.tipsFly();
-            } else {
-                this.position = getNextColor(color);
-                Rule.tipsJump();
+            }
+        }
+        tryAttack();
+    }
+
+    private void tryAttack() {
+        if (this.getPosition().getId() == null) return;
+        int id = this.getPosition().getId();
+        if (Rule.chess.positionId2PiecesMap.containsKey(id)) {
+            for (Pieces pieces : Rule.chess.positionId2PiecesMap.get(id)) {
+                if (!pieces.getColor().equalsIgnoreCase(this.getColor())) {
+                    pieces.reset();
+                    Rule.attack();
+                }
             }
         }
     }
@@ -115,6 +140,19 @@ public class Pieces {
 
     public void setIcon(Image icon) {
         this.icon = icon;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Pieces pieces = (Pieces) o;
+        return isReady == pieces.isReady && win == pieces.win && Objects.equals(position, pieces.position) && Objects.equals(oPosition, pieces.oPosition) && Objects.equals(icon, pieces.icon) && Objects.equals(color, pieces.color) && Objects.equals(road, pieces.road);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(position, oPosition, icon, color, road, isReady, win);
     }
 
     public static enum SidePieces {

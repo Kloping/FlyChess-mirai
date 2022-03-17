@@ -68,12 +68,11 @@ public class Rule {
         return player1 == q || player2 == q || player3 == q || player4 == q;
     }
 
-    private static Image drawThis() throws IOException {
+    public static Image drawThis() throws IOException {
         java.awt.Image image = chess.getFrame();
         image = putImage(image, player1, blue, player2, yellow);
         image = putImage(image, player3, green, player4, red);
         if (step > 0) {
-            System.out.println(step);
             BufferedImage i0 = (BufferedImage) STEP2IMAGE.get(step);
             image = ImageDrawerUtils.putImage((BufferedImage) image, i0, 455, 460);
         }
@@ -94,70 +93,87 @@ public class Rule {
     }
 
     public static Object start() throws IOException {
-        if (chess.sides.size() < 2) {
+        if (chess.getSides().size() < 2) {
             return "人数不足两人";
         }
+        if (isStarted) {
+            return "游戏已经开始";
+        }
         try {
-            isStarted = true;
             chess.next();
             return drawThis();
         } finally {
             tipsShake();
+            state = 1;
+            isStarted = true;
         }
     }
 
     private static void tipsShake() {
-        context.sendMessage(new At(chess.side.getQ()).plus("请投掷骰子#投掷子/扔色子"));
+        context.sendMessage(new At(chess.getSide().getQ()).plus("请投掷骰子#投掷子/扔色子"));
     }
 
     private static void tipsSelect() {
-        context.sendMessage(new At(chess.side.getQ()).plus("请选择棋子 /1 /2 /3 /4"));
+        context.sendMessage(new At(chess.getSide().getQ()).plus("请选择棋子 /1 /2 /3 /4"));
     }
 
+    public static int state = 0;
     private static int step = 0;
     public static Random random = new Random();
 
     public static Object shake(long q) throws IOException {
-        if (q == chess.side.getQ()) {
-            step = random.nextInt(6) + 1;
-            if ((step % 2 != 0) && !hasStepable(step)) {
-                chess.next();
-                tipsShake();
+        if (state == 1) {
+            if (q == chess.getSide().getQ()) {
+                step = random.nextInt(6) + 1;
+                if (chess.getSide().test(step)) {
+                    chess.next();
+                    tipsShake();
+                    return drawThis();
+                }
+                if ((step % 2 != 0) && !hasStepable(step)) {
+                    chess.next();
+                    tipsShake();
+                    return drawThis();
+                }
+                tipsSelect();
+                state = 2;
                 return drawThis();
             }
-            tipsSelect();
-            return drawThis();
         }
         return "等待中...";
     }
 
     private static boolean hasStepable(int step) {
-        for (Pieces piece : chess.side.getPieces()) {
+        for (Pieces piece : chess.getSide().getPieces()) {
             if (piece.isReady()) return true;
         }
         return false;
     }
 
     public static Object select(long q, int i) throws IOException {
-        if (q == chess.side.getQ()) {
-            Pieces pieces = chess.side.getPieces()[i - 1];
-            if (pieces.isReady()) {
-                pieces.jumpStep(step);
-                if (step != 6) {
-                    chess.next();
-                }
-                tipsShake();
-                return drawThis();
-            } else {
-                if (step % 2 == 0) {
-                    pieces.ready();
+        if (state == 2) {
+            if (q == chess.getSide().getQ()) {
+                Pieces pieces = chess.getSide().getPieces()[i - 1];
+                if (pieces.isReady()) {
+                    chess.getSide().step(step, i - 1);
                     if (step != 6) {
                         chess.next();
                     }
                     tipsShake();
+                    state = 1;
                     return drawThis();
                 } else {
-                    return "2,4,6点可起飞";
+                    if (step % 2 == 0) {
+                        pieces.ready();
+                        if (step != 6) {
+                            chess.next();
+                        }
+                        tipsShake();
+                        state = 1;
+                        return drawThis();
+                    } else {
+                        return "2,4,6点可起飞";
+                    }
                 }
             }
         }
@@ -171,21 +187,27 @@ public class Rule {
             BufferedImage i0 = ImageIO.read(FlyChess.getUrlsFrom("img/1.jpg", Position.class));
             i0 = (BufferedImage) ImageDrawerUtils.image2Size(i0, 70, 70);
             STEP2IMAGE.put(1, (java.awt.Image) i0);
+
             BufferedImage i1 = ImageIO.read(FlyChess.getUrlsFrom("img/2.jpg", Position.class));
             i1 = (BufferedImage) ImageDrawerUtils.image2Size(i1, 70, 70);
             STEP2IMAGE.put(2, (java.awt.Image) i1);
+
             BufferedImage i2 = ImageIO.read(FlyChess.getUrlsFrom("img/3.jpg", Position.class));
             i2 = (BufferedImage) ImageDrawerUtils.image2Size(i2, 70, 70);
             STEP2IMAGE.put(3, (java.awt.Image) i2);
+
             BufferedImage i3 = ImageIO.read(FlyChess.getUrlsFrom("img/4.jpg", Position.class));
             i3 = (BufferedImage) ImageDrawerUtils.image2Size(i3, 70, 70);
             STEP2IMAGE.put(4, (java.awt.Image) i3);
+
             BufferedImage i4 = ImageIO.read(FlyChess.getUrlsFrom("img/5.jpg", Position.class));
             i4 = (BufferedImage) ImageDrawerUtils.image2Size(i4, 70, 70);
             STEP2IMAGE.put(5, (java.awt.Image) i4);
+
             BufferedImage i5 = ImageIO.read(FlyChess.getUrlsFrom("img/6.jpg", Position.class));
             i5 = (BufferedImage) ImageDrawerUtils.image2Size(i5, 70, 70);
             STEP2IMAGE.put(6, (java.awt.Image) i5);
+
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -300,7 +322,7 @@ public class Rule {
     }
 
     private static boolean winAll() {
-        for (Side side : chess.sides) {
+        for (Side side : chess.getSides()) {
             if (!side.isWin())
                 return false;
         }
@@ -308,7 +330,7 @@ public class Rule {
     }
 
     private static boolean playWin(String color) {
-        for (Side side : chess.sides) {
+        for (Side side : chess.getSides()) {
             if (side.getColor().equalsIgnoreCase(color)) {
                 for (Pieces piece : side.getPieces()) {
                     if (!piece.isWin()) {
@@ -320,5 +342,17 @@ public class Rule {
             }
         }
         return false;
+    }
+
+    public static void rollback(Side side) {
+        for (Pieces piece : side.getPieces()) {
+            if (!piece.isWin())
+                piece.reset();
+        }
+        context.sendMessage(new At(side.getQ()).plus("掷到了3个6,所有棋子返回"));
+    }
+
+    public static void attack() {
+        context.sendMessage("击退一个棋子");
     }
 }

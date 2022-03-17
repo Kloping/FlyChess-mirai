@@ -1,7 +1,5 @@
 package io.github.Kloping;
 
-import io.github.kloping.object.ObjectUtils;
-
 import java.util.LinkedList;
 import java.util.List;
 
@@ -85,8 +83,19 @@ public class Road {
     private List<Position> list = new LinkedList<>();
     private int index = 0;
 
-    public Position next() {
-        return list.get(++index);
+    public Position next(int r) {
+        index += r;
+        int max = list.size() - 1;
+        if (index >= max) {
+            int m = index - max;
+            index = max;
+            index -= m;
+        }
+        Position position = list.get(index);
+        if (position == null) {
+            position = list.get(list.size() - 1);
+        }
+        return position;
     }
 
     public int getIndex() {

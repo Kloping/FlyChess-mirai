@@ -10,9 +10,8 @@ import java.awt.image.RenderedImage;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
-import java.util.LinkedList;
+import java.util.*;
 import java.util.List;
-import java.util.UUID;
 
 /**
  * @author github.kloping
@@ -30,6 +29,14 @@ public class Chess {
 
     public void addSide(Side side) {
         sides.add(side);
+    }
+
+    public Side getSide() {
+        return side;
+    }
+
+    public List<Side> getSides() {
+        return sides;
     }
 
     public void next() {
@@ -57,20 +64,13 @@ public class Chess {
         return back;
     }
 
+    public final Map<Integer, List<Pieces>> positionId2PiecesMap = new HashMap<>();
+
     public net.mamoe.mirai.message.data.Image getImage(Contact contact) throws IOException {
         File file = new File("./temp/" + UUID.randomUUID() + ".jpg");
         file.getParentFile().mkdirs();
         file.createNewFile();
         ImageIO.write((RenderedImage) getFrame(), "jpg", file);
         return Contact.uploadImage(contact, file);
-    }
-
-    public static Position red;
-    public static Position green;
-    public static Position blue;
-    public static Position yellow;
-
-    static {
-        red = new Position();
     }
 }

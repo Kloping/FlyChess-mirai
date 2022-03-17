@@ -93,9 +93,9 @@ public class Rule {
     }
 
     public static Object start() throws IOException {
-        if (chess.getSides().size() < 2) {
-            return "人数不足两人";
-        }
+//        if (chess.getSides().size() < 2) {
+//            return "人数不足两人";
+//        }
         if (isStarted) {
             return "游戏已经开始";
         }

@@ -106,6 +106,16 @@ public class Road {
         this.index = index;
     }
 
+    public void update(Integer id) {
+        for (Position position : list) {
+            if (position.getId() != null)
+                if (position.getId().equals(id)) {
+                    index = list.indexOf(position);
+                    break;
+                }
+        }
+    }
+
     public Position start() {
         index = 0;
         return list.get(index);

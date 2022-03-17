@@ -100,6 +100,7 @@ public class Pieces {
             }
         }
         tryAttack();
+        road.update(this.position.getId());
     }
 
     private void tryAttack() {

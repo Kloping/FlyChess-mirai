@@ -26,7 +26,7 @@ public class FlyChess extends JavaPlugin {
     public static FlyChess INSTANCE = new FlyChess();
 
     public FlyChess() {
-        super(new JvmPluginDescriptionBuilder("com.github.kloping.FlyChess", "1.3").info("飞行棋插件").build());
+        super(new JvmPluginDescriptionBuilder("com.github.kloping.FlyChess", "1.4").info("飞行棋插件").build());
     }
 
     @Override
@@ -73,11 +73,6 @@ public class FlyChess extends JavaPlugin {
                 return Rule.select(q, 3);
             case "/4":
                 return Rule.select(q, 4);
-            case "/r":
-                while (true) {
-                    Rule.chess.getSide().step(5, 0);
-                    contact.sendMessage(Rule.drawThis());
-                }
             default:
                 return null;
         }

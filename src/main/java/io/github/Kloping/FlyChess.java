@@ -78,14 +78,15 @@ public class FlyChess extends JavaPlugin {
         Rule.context = contact;
         switch (str) {
             case "创建飞行棋":
-            case "创建飞行棋0":
                 return Rule.create();
-            case "加入飞行棋":
-                return Rule.join(q);
             case "掷骰子":
+            case "掷色子":
             case "扔色子":
+            case "扔骰子":
                 Rule.shake(q, false);
                 return null;
+            case "加入飞行棋":
+                return Rule.join(q);
             case "开始游戏":
                 return Rule.start();
             case "/1":

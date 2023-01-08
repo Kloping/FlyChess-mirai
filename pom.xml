@@ -11,7 +11,7 @@
     <properties>
         <maven.compiler.source>8</maven.compiler.source>
         <maven.compiler.target>8</maven.compiler.target>
-        <mirai-version>2.10.0</mirai-version>
+        <mirai-version>2.12.3</mirai-version>
     </properties>
 
     <dependencies>

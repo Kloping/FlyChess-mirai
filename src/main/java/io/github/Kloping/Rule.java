@@ -1,5 +1,6 @@
 package io.github.Kloping;
 
+import io.github.kloping.common.Public;
 import net.mamoe.mirai.contact.Contact;
 import net.mamoe.mirai.message.data.At;
 import net.mamoe.mirai.message.data.Image;
@@ -12,6 +13,8 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.util.*;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
 
 /**
  * @author github.kloping
@@ -21,6 +24,7 @@ public class Rule {
     public static Chess chess;
     public static boolean isStarted = false;
     public static long time = 0;
+    public static boolean auto = true;
 
     public static String create() {
         if (chess != null) {
@@ -93,9 +97,9 @@ public class Rule {
     }
 
     public static Object start() throws IOException {
-//        if (chess.getSides().size() < 2) {
-//            return "人数不足两人";
-//        }
+        if (chess.getSides().size() < 2) {
+            return "人数不足两人";
+        }
         if (isStarted) {
             return "游戏已经开始";
         }
@@ -103,44 +107,101 @@ public class Rule {
             chess.next();
             return drawThis();
         } finally {
-            tipsShake();
             state = 1;
             isStarted = true;
+            tipsShake();
         }
     }
 
     private static void tipsShake() {
         context.sendMessage(new At(chess.getSide().getQ()).plus("请投掷骰子#投掷子/扔色子"));
+        if (Rule.auto) {
+            try {
+                shake(chess.getSide().getQ(), true);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
     }
 
     private static void tipsSelect() {
         context.sendMessage(new At(chess.getSide().getQ()).plus("请选择棋子 /1 /2 /3 /4"));
+        int r = 0;
+        int i = 0;
+        for (Pieces piece : chess.getSide().getPieces()) {
+            if (!piece.isWin() && piece.isReady()) {
+                r++;
+                i = r;
+            } else if (step % 2 == 0 && piece.isReady()) {
+                r++;
+                i = r;
+            }
+        }
+        if (r == 1) {
+            try {
+                select(chess.getSide().getQ(), i, true);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
     }
 
     public static int state = 0;
     private static int step = 0;
     public static Random random = new Random();
+    public static Future future = null;
 
-    public static Object shake(long q) throws IOException {
+    public static void shake(long q, boolean breakOld) throws IOException {
         if (state == 1) {
             if (q == chess.getSide().getQ()) {
                 step = random.nextInt(6) + 1;
+                context.sendMessage(new At(q).plus("投掷结果:" + step));
                 if (chess.getSide().test(step)) {
                     chess.next();
                     tipsShake();
-                    return drawThis();
+                    sendNow(breakOld);
+                    return;
                 }
                 if ((step % 2 != 0) && !hasStepable(step)) {
                     chess.next();
                     tipsShake();
-                    return drawThis();
+                    sendNow(breakOld);
+                    return;
                 }
-                tipsSelect();
                 state = 2;
-                return drawThis();
+                tipsSelect();
+                sendNow(breakOld);
+                return;
             }
         }
-        return "等待中...";
+        context.sendMessage(new At(q).plus("等待中...on shake"));
+    }
+
+    private static void sendNow(boolean b) {
+        if (future != null) {
+            if (!future.isCancelled() && !future.isDone()) {
+                if (b)
+                    future.cancel(true);
+                else
+                    try {
+                        future.get();
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    } catch (ExecutionException e) {
+                        e.printStackTrace();
+                    }
+            }
+        }
+        future = Public.EXECUTOR_SERVICE.submit(() -> {
+            try {
+                Thread.sleep(200L);
+                context.sendMessage(drawThis());
+            } catch (InterruptedException e) {
+                System.err.println("任务已取消");
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        });
     }
 
     private static boolean hasStepable(int step) {
@@ -150,7 +211,7 @@ public class Rule {
         return false;
     }
 
-    public static Object select(long q, int i) throws IOException {
+    public static void select(long q, int i, boolean b) throws IOException {
         if (state == 2) {
             if (q == chess.getSide().getQ()) {
                 Pieces pieces = chess.getSide().getPieces()[i - 1];
@@ -159,25 +220,28 @@ public class Rule {
                     if (step != 6) {
                         chess.next();
                     }
-                    tipsShake();
                     state = 1;
-                    return drawThis();
+                    tipsShake();
+                    sendNow(b);
+                    return;
                 } else {
                     if (step % 2 == 0) {
                         pieces.ready();
                         if (step != 6) {
                             chess.next();
                         }
-                        tipsShake();
                         state = 1;
-                        return drawThis();
+                        tipsShake();
+                        sendNow(b);
+                        return;
                     } else {
-                        return "2,4,6点可起飞";
+                        context.sendMessage("2,4,6点可起飞");
+                        return;
                     }
                 }
             }
         }
-        return "等待中...";
+        context.sendMessage(new At(q).plus("等待中...on select"));
     }
 
     public static final Map<Integer, java.awt.Image> STEP2IMAGE = new HashMap<>();

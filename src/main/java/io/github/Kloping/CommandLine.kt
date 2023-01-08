@@ -24,4 +24,12 @@ class CommandLine private constructor() : JCompositeCommand(FlyChess.INSTANCE, "
             ?.forEach { f -> f.delete() }
         sendMessage("清除完成")
     }
+
+    @Description("开启自动掷骰子")
+    @SubCommand("autoShake")
+    suspend fun CommandSender.autoShake() {
+        Rule.auto = !Rule.auto
+        sendMessage("当前auto:" + Rule.auto)
+    }
+
 }

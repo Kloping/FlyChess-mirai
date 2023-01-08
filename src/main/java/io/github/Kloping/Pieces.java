@@ -12,6 +12,8 @@ import static io.github.Kloping.Position.ID2POSITION;
 import static io.github.Kloping.Position.POSITION2ID;
 
 /**
+ * 棋子
+ *
  * @author github.kloping
  */
 public class Pieces {
@@ -97,9 +99,9 @@ public class Pieces {
             if (this.position.getS() != null) {
                 this.position = ID2POSITION.get(Integer.valueOf(this.position.getS()));
                 Rule.tipsFly();
+                tryAttack();
             }
         }
-        tryAttack();
         road.update(this.position.getId());
     }
 
@@ -121,7 +123,10 @@ public class Pieces {
         while (true) {
             i++;
             Position p0 = ID2POSITION.get(i);
-            if (color.equals(p0.getColor())) {
+            if (p0 == null) {
+                i = 1;
+                continue;
+            } else if (color.equals(p0.getColor())) {
                 return p0;
             }
         }

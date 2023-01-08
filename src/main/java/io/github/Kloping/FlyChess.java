@@ -10,6 +10,8 @@ import net.mamoe.mirai.event.EventHandler;
 import net.mamoe.mirai.event.GlobalEventChannel;
 import net.mamoe.mirai.event.ListenerHost;
 import net.mamoe.mirai.event.events.GroupMessageEvent;
+import net.mamoe.mirai.event.events.GroupMessageSyncEvent;
+import net.mamoe.mirai.event.events.MessageEvent;
 import net.mamoe.mirai.message.data.Message;
 import net.mamoe.mirai.message.data.MessageChain;
 import net.mamoe.mirai.message.data.PlainText;
@@ -26,7 +28,7 @@ public class FlyChess extends JavaPlugin {
     public static FlyChess INSTANCE = new FlyChess();
 
     public FlyChess() {
-        super(new JvmPluginDescriptionBuilder("com.github.kloping.FlyChess", "1.4").info("飞行棋插件").build());
+        super(new JvmPluginDescriptionBuilder("com.github.kloping.FlyChess", "1.5").info("飞行棋插件").build());
     }
 
     @Override
@@ -34,45 +36,70 @@ public class FlyChess extends JavaPlugin {
         super.onDisable();
     }
 
+    public MessageEvent event;
+
     @Override
     public void onEnable() {
         CommandManager.INSTANCE.registerCommand(CommandLine.INSTANCE, true);
         GlobalEventChannel.INSTANCE.registerListenerHost(new ListenerHost() {
             @EventHandler
             public void onMessage(@NotNull GroupMessageEvent event) throws Exception {
+                FlyChess.INSTANCE.event = event;
+                onMessage();
+            }
+
+            @EventHandler
+            public void onMessage(@NotNull GroupMessageSyncEvent event) throws Exception {
+                FlyChess.INSTANCE.event = event;
+                onMessage();
+            }
+
+            private void onMessage() throws Exception {
                 MessageChain chain = event.getMessage();
                 long q = event.getSender().getId();
                 if (chain.size() > 1 && chain.get(1) instanceof PlainText) {
                     PlainText plainText = (PlainText) chain.get(1);
-                    Object o = command(plainText.getContent().trim(), q, event.getGroup());
-                    if (o == null) return;
-                    if (o instanceof Message) event.getGroup().sendMessage((Message) o);
-                    if (o instanceof String) event.getGroup().sendMessage(o.toString());
+                    Object o = command(plainText.getContent().trim(), q, event.getSubject());
+                    outR(event, o);
                 }
             }
+
         });
+    }
+
+    public void outR(@NotNull MessageEvent event, Object o) {
+        if (o == null) return;
+        this.event = event;
+        if (o instanceof Message) event.getSubject().sendMessage((Message) o);
+        if (o instanceof String) event.getSubject().sendMessage(o.toString());
     }
 
     private Object command(String str, long q, Contact contact) throws IOException {
         Rule.context = contact;
         switch (str) {
             case "创建飞行棋":
+            case "创建飞行棋0":
                 return Rule.create();
             case "加入飞行棋":
                 return Rule.join(q);
             case "掷骰子":
             case "扔色子":
-                return Rule.shake(q);
+                Rule.shake(q, false);
+                return null;
             case "开始游戏":
                 return Rule.start();
             case "/1":
-                return Rule.select(q, 1);
+                Rule.select(q, 1, false);
+                return null;
             case "/2":
-                return Rule.select(q, 2);
+                Rule.select(q, 2, false);
+                return null;
             case "/3":
-                return Rule.select(q, 3);
+                Rule.select(q, 3, false);
+                return null;
             case "/4":
-                return Rule.select(q, 4);
+                Rule.select(q, 4, false);
+                return null;
             default:
                 return null;
         }

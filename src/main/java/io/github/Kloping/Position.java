@@ -11,6 +11,8 @@ import java.util.Map;
 import java.util.Objects;
 
 /**
+ * 位置
+ *
  * @author github.kloping
  */
 public class Position {

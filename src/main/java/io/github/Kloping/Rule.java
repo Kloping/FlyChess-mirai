@@ -126,6 +126,13 @@ public class Rule {
 
     private static void tipsSelect() {
         context.sendMessage(new At(chess.getSide().getQ()).plus("请选择棋子 /1 /2 /3 /4"));
+        tryAutoSelect();
+    }
+
+    private static void tryAutoSelect() {
+        if (oneLeft()) {
+            return;
+        }
         int r = 0;
         int i = 0;
         for (Pieces piece : chess.getSide().getPieces()) {
@@ -144,6 +151,14 @@ public class Rule {
                 e.printStackTrace();
             }
         }
+    }
+
+    private static boolean oneLeft() {
+        int i = 0;
+        for (Pieces piece : chess.getSide().getPieces()) {
+            if (piece.isWin()) i++;
+        }
+        return i == 3;
     }
 
     public static int state = 0;
@@ -180,16 +195,14 @@ public class Rule {
     private static void sendNow(boolean b) {
         if (future != null) {
             if (!future.isCancelled() && !future.isDone()) {
-                if (b)
-                    future.cancel(true);
-                else
-                    try {
-                        future.get();
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    } catch (ExecutionException e) {
-                        e.printStackTrace();
-                    }
+                if (b) future.cancel(true);
+                else try {
+                    future.get();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                } catch (ExecutionException e) {
+                    e.printStackTrace();
+                }
             }
         }
         future = Public.EXECUTOR_SERVICE.submit(() -> {
@@ -215,7 +228,10 @@ public class Rule {
         if (state == 2) {
             if (q == chess.getSide().getQ()) {
                 Pieces pieces = chess.getSide().getPieces()[i - 1];
-                if (pieces.isReady()) {
+                if (pieces.isWin()) {
+                    context.sendMessage(new At(q).plus("棋子已到终点"));
+                    return;
+                } else if (pieces.isReady()) {
                     chess.getSide().step(step, i - 1);
                     if (step != 6) {
                         chess.next();
@@ -387,8 +403,7 @@ public class Rule {
 
     private static boolean winAll() {
         for (Side side : chess.getSides()) {
-            if (!side.isWin())
-                return false;
+            if (!side.isWin()) return false;
         }
         return true;
     }
@@ -410,8 +425,7 @@ public class Rule {
 
     public static void rollback(Side side) {
         for (Pieces piece : side.getPieces()) {
-            if (!piece.isWin())
-                piece.reset();
+            if (!piece.isWin()) piece.reset();
         }
         context.sendMessage(new At(side.getQ()).plus("掷到了3个6,所有棋子返回"));
     }

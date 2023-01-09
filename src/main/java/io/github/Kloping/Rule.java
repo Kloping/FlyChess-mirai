@@ -132,7 +132,7 @@ public class Rule {
             if (!piece.isWin() && piece.isReady()) {
                 r++;
                 i = r;
-            } else if (step % 2 == 0 && piece.isReady()) {
+            } else if (step % 2 == 0 && !piece.isReady()) {
                 r++;
                 i = r;
             }

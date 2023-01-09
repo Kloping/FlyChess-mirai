@@ -1,6 +1,5 @@
 package io.github.Kloping;
 
-import javafx.geometry.Pos;
 import net.mamoe.mirai.contact.Contact;
 
 import javax.imageio.ImageIO;
@@ -10,8 +9,8 @@ import java.awt.image.RenderedImage;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
-import java.util.*;
 import java.util.List;
+import java.util.*;
 
 /**
  * @author github.kloping
@@ -45,7 +44,9 @@ public class Chess {
             index = 0;
         }
         side = sides.get(index);
-        if (side.isWin()) next();
+        if (side.isWin()) {
+            next();
+        }
     }
 
     public Image getFrame() throws IOException {

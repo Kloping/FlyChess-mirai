@@ -30,7 +30,7 @@ public class FlyChess extends JavaPlugin {
     public static Config config = new Config();
 
     public FlyChess() {
-        super(new JvmPluginDescriptionBuilder("com.github.kloping.FlyChess", "1.8").info("飞行棋插件").build());
+        super(new JvmPluginDescriptionBuilder("com.github.kloping.FlyChess", "1.8.2").info("飞行棋插件").build());
     }
 
     @Override

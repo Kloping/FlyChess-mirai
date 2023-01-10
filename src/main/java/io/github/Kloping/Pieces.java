@@ -110,9 +110,11 @@ public class Pieces {
         int id = this.getPosition().getId();
         for (Side side : Rule.chess.sides) {
             for (Pieces piece : side.getPieces()) {
-                if (!piece.getColor().equalsIgnoreCase(this.getColor())) {
-                    piece.reset();
-                    Rule.attack();
+                if (piece.getPosition().equals(this.position)) {
+                    if (!piece.getColor().equalsIgnoreCase(this.getColor())) {
+                        piece.reset();
+                        Rule.attack();
+                    }
                 }
             }
         }

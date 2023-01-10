@@ -45,6 +45,7 @@ public class Rule {
     public static Object join(long q) throws IOException {
         if (isStarted) return "游戏已开始";
         if (joined(q)) return "您已经加入了";
+        if (chess == null) return "游戏未创建";
         if (player1 <= 0) {
             player1 = q;
             chess.addSide(Side.initBlue().setQ(q));

@@ -16,6 +16,8 @@ import java.util.*;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
+import static io.github.Kloping.ImageDrawer.drawThis;
+
 /**
  * @author github.kloping
  */
@@ -24,7 +26,6 @@ public class Rule {
     public static Chess chess;
     public static boolean isStarted = false;
     public static long time = 0;
-    public static boolean auto = true;
 
     public static String create() {
         if (chess != null) {
@@ -36,10 +37,10 @@ public class Rule {
         }
     }
 
-    private static long player1;
-    private static long player2;
-    private static long player3;
-    private static long player4;
+    protected static long player1;
+    protected static long player2;
+    protected static long player3;
+    protected static long player4;
 
     public static Object join(long q) throws IOException {
         if (isStarted) return "游戏已开始";
@@ -72,30 +73,6 @@ public class Rule {
         return player1 == q || player2 == q || player3 == q || player4 == q;
     }
 
-    public static Image drawThis() throws IOException {
-        java.awt.Image image = chess.getFrame();
-        image = putImage(image, player1, blue, player2, yellow);
-        image = putImage(image, player3, green, player4, red);
-        if (step > 0) {
-            BufferedImage i0 = (BufferedImage) STEP2IMAGE.get(step);
-            image = ImageDrawerUtils.putImage((BufferedImage) image, i0, 455, 460);
-        }
-        File file = new File("./temp/" + UUID.randomUUID() + ".jpg");
-        file.getParentFile().mkdirs();
-        file.createNewFile();
-        ImageIO.write((RenderedImage) image, "jpg", file);
-        Image im = Contact.uploadImage(context, file);
-        return im;
-    }
-
-    private static java.awt.Image putImage(java.awt.Image image, long pl1, Position p1, long pl2, Position p2) throws IOException {
-        if (pl1 > 0)
-            image = ImageDrawerUtils.putImage((BufferedImage) image, ImageIO.read(new URL("http://q1.qlogo.cn/g?b=qq&nk=" + pl1 + "&s=40")), p1.intLeft(), p1.intTop());
-        if (pl2 > 0)
-            image = ImageDrawerUtils.putImage((BufferedImage) image, ImageIO.read(new URL("http://q1.qlogo.cn/g?b=qq&nk=" + pl2 + "&s=40")), p2.intLeft(), p2.intTop());
-        return image;
-    }
-
     public static Object start() throws IOException {
         if (chess.getSides().size() < 2) {
             return "人数不足两人";
@@ -115,7 +92,7 @@ public class Rule {
 
     private static void tipsShake() {
         context.sendMessage(new At(chess.getSide().getQ()).plus("请投掷骰子#投掷子/扔色子"));
-        if (Rule.auto) {
+        if (FlyChess.config.getAuto()) {
             try {
                 shake(chess.getSide().getQ(), true);
             } catch (IOException e) {
@@ -162,7 +139,7 @@ public class Rule {
     }
 
     public static int state = 0;
-    private static int step = 0;
+    protected static int step = 0;
     public static Random random = new Random();
     public static Future future = null;
 
@@ -260,61 +237,6 @@ public class Rule {
         context.sendMessage(new At(q).plus("等待中...on select"));
     }
 
-    public static final Map<Integer, java.awt.Image> STEP2IMAGE = new HashMap<>();
-
-    static {
-        try {
-            BufferedImage i0 = ImageIO.read(FlyChess.getUrlsFrom("img/1.jpg", Position.class));
-            i0 = (BufferedImage) ImageDrawerUtils.image2Size(i0, 70, 70);
-            STEP2IMAGE.put(1, (java.awt.Image) i0);
-
-            BufferedImage i1 = ImageIO.read(FlyChess.getUrlsFrom("img/2.jpg", Position.class));
-            i1 = (BufferedImage) ImageDrawerUtils.image2Size(i1, 70, 70);
-            STEP2IMAGE.put(2, (java.awt.Image) i1);
-
-            BufferedImage i2 = ImageIO.read(FlyChess.getUrlsFrom("img/3.jpg", Position.class));
-            i2 = (BufferedImage) ImageDrawerUtils.image2Size(i2, 70, 70);
-            STEP2IMAGE.put(3, (java.awt.Image) i2);
-
-            BufferedImage i3 = ImageIO.read(FlyChess.getUrlsFrom("img/4.jpg", Position.class));
-            i3 = (BufferedImage) ImageDrawerUtils.image2Size(i3, 70, 70);
-            STEP2IMAGE.put(4, (java.awt.Image) i3);
-
-            BufferedImage i4 = ImageIO.read(FlyChess.getUrlsFrom("img/5.jpg", Position.class));
-            i4 = (BufferedImage) ImageDrawerUtils.image2Size(i4, 70, 70);
-            STEP2IMAGE.put(5, (java.awt.Image) i4);
-
-            BufferedImage i5 = ImageIO.read(FlyChess.getUrlsFrom("img/6.jpg", Position.class));
-            i5 = (BufferedImage) ImageDrawerUtils.image2Size(i5, 70, 70);
-            STEP2IMAGE.put(6, (java.awt.Image) i5);
-
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
-    private static Position green;
-    private static Position red;
-    private static Position yellow;
-    private static Position blue;
-
-    static {
-        green = new Position();
-        green.setLeft("125");
-        green.setTop("122");
-
-        red = new Position();
-        red.setLeft("823");
-        red.setTop("125");
-
-        yellow = new Position();
-        yellow.setLeft("125");
-        yellow.setTop("822");
-
-        blue = new Position();
-        blue.setLeft("822");
-        blue.setTop("824");
-    }
 
     public static void tipsJump() {
         context.sendMessage("跨越了捷径");
@@ -325,7 +247,7 @@ public class Rule {
     }
 
     public static void win(Pieces pieces, String color) {
-        context.sendMessage("一颗棋子达到重点");
+        context.sendMessage("一颗棋子达到终点");
         if (playWin(color)) {
             context.sendMessage("该玩家获得了胜利");
             if (winAll()) {

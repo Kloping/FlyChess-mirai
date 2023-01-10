@@ -1,5 +1,6 @@
 package io.github.Kloping
 
+import io.github.kloping.initialize.FileInitializeValue
 import net.mamoe.mirai.console.command.CommandSender
 import net.mamoe.mirai.console.command.java.JCompositeCommand
 import java.io.File
@@ -20,16 +21,22 @@ class CommandLine private constructor() : JCompositeCommand(FlyChess.INSTANCE, "
     @Description("清除缓存图片")
     @SubCommand("clearTemp")
     suspend fun CommandSender.flyChessClear() {
-        File("./temp")?.listFiles { it -> it.name.endsWith("jpg") }
-            ?.forEach { f -> f.delete() }
+        File("./temp")?.listFiles { it -> it.name.endsWith("jpg") }?.forEach { f -> f.delete() }
         sendMessage("清除完成")
     }
 
     @Description("开启自动掷骰子")
     @SubCommand("autoShake")
     suspend fun CommandSender.autoShake() {
-        Rule.auto = !Rule.auto
-        sendMessage("当前auto:" + Rule.auto)
+        FlyChess.config.auto = !FlyChess.config.auto;
+        FileInitializeValue.putValues("./conf/flychess/conf.json", FlyChess.config, true)
+        sendMessage("当前auto:" + FlyChess.config.auto)
+    }
+
+    @Description("重载配置")
+    @SubCommand("reload")
+    suspend fun CommandSender.reload() {
+        FlyChess.config = FileInitializeValue.getValue("./conf/flychess/conf.json", FlyChess.config, true)
     }
 
 }

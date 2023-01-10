@@ -65,8 +65,6 @@ public class Chess {
         return back;
     }
 
-    public final Map<Integer, List<Pieces>> positionId2PiecesMap = new HashMap<>();
-
     public net.mamoe.mirai.message.data.Image getImage(Contact contact) throws IOException {
         File file = new File("./temp/" + UUID.randomUUID() + ".jpg");
         file.getParentFile().mkdirs();

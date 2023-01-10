@@ -108,10 +108,10 @@ public class Pieces {
     private void tryAttack() {
         if (this.getPosition().getId() == null) return;
         int id = this.getPosition().getId();
-        if (Rule.chess.positionId2PiecesMap.containsKey(id)) {
-            for (Pieces pieces : Rule.chess.positionId2PiecesMap.get(id)) {
-                if (!pieces.getColor().equalsIgnoreCase(this.getColor())) {
-                    pieces.reset();
+        for (Side side : Rule.chess.sides) {
+            for (Pieces piece : side.getPieces()) {
+                if (!piece.getColor().equalsIgnoreCase(this.getColor())) {
+                    piece.reset();
                     Rule.attack();
                 }
             }
@@ -162,10 +162,7 @@ public class Pieces {
     }
 
     public static enum SidePieces {
-        RED("red", ImageDrawerUtils.image2Size0(read(getUrlsFrom("img/red.png", Position.class)), 40, 40)),
-        BLUE("blue", ImageDrawerUtils.image2Size0(read(getUrlsFrom("img/blue.png", Position.class)), 40, 40)),
-        GREEN("green", ImageDrawerUtils.image2Size0(read(getUrlsFrom("img/green.png", Position.class)), 40, 40)),
-        YELLOW("yellow", ImageDrawerUtils.image2Size0(read(getUrlsFrom("img/yellow.png", Position.class)), 40, 40));
+        RED("red", ImageDrawerUtils.image2Size0(read(getUrlsFrom("img/red.png", Position.class)), 40, 40)), BLUE("blue", ImageDrawerUtils.image2Size0(read(getUrlsFrom("img/blue.png", Position.class)), 40, 40)), GREEN("green", ImageDrawerUtils.image2Size0(read(getUrlsFrom("img/green.png", Position.class)), 40, 40)), YELLOW("yellow", ImageDrawerUtils.image2Size0(read(getUrlsFrom("img/yellow.png", Position.class)), 40, 40));
 
         private static BufferedImage read(URL urlsFrom) {
             try {

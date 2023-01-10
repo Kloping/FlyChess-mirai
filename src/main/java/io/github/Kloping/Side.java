@@ -66,12 +66,6 @@ public class Side {
     public void step(int step, int index) {
         Pieces p0 = pieces[index];
         p0.jumpStep(step);
-        for (Integer id : Rule.chess.positionId2PiecesMap.keySet()) {
-            Rule.chess.positionId2PiecesMap.get(id).remove(p0);
-        }
-        if (p0.getPosition().getId() != null) {
-            MapUtils.append(Rule.chess.positionId2PiecesMap, p0.getPosition().getId(), p0);
-        }
         up1 = up0;
         up0 = step;
     }

@@ -1,5 +1,6 @@
 package io.github.Kloping;
 
+import io.github.kloping.initialize.FileInitializeValue;
 import io.github.kloping.io.ReadUtils;
 import net.mamoe.mirai.console.command.CommandManager;
 import net.mamoe.mirai.console.extension.PluginComponentStorage;
@@ -26,10 +27,10 @@ import java.net.URL;
  */
 public class FlyChess extends JavaPlugin {
     public static FlyChess INSTANCE = new FlyChess();
+    public static Config config = new Config();
 
     public FlyChess() {
-        super(new JvmPluginDescriptionBuilder("com.github.kloping.FlyChess", "1.7")
-                .info("飞行棋插件").build());
+        super(new JvmPluginDescriptionBuilder("com.github.kloping.FlyChess", "1.8").info("飞行棋插件").build());
     }
 
     @Override
@@ -37,7 +38,6 @@ public class FlyChess extends JavaPlugin {
         super.onDisable();
     }
 
-    public MessageEvent event;
 
     @Override
     public void onEnable() {
@@ -45,17 +45,15 @@ public class FlyChess extends JavaPlugin {
         GlobalEventChannel.INSTANCE.registerListenerHost(new ListenerHost() {
             @EventHandler
             public void onMessage(@NotNull GroupMessageEvent event) throws Exception {
-                FlyChess.INSTANCE.event = event;
-                onMessage();
+                onMessage0(event);
             }
 
             @EventHandler
             public void onMessage(@NotNull GroupMessageSyncEvent event) throws Exception {
-                FlyChess.INSTANCE.event = event;
-                onMessage();
+                onMessage0(event);
             }
 
-            private void onMessage() throws Exception {
+            private void onMessage0(MessageEvent event) throws Exception {
                 MessageChain chain = event.getMessage();
                 long q = event.getSender().getId();
                 if (chain.size() > 1 && chain.get(1) instanceof PlainText) {
@@ -66,45 +64,52 @@ public class FlyChess extends JavaPlugin {
             }
 
         });
+        config = FileInitializeValue.getValue("./conf/flychess/conf.json", config, true);
     }
 
     public void outR(@NotNull MessageEvent event, Object o) {
         if (o == null) return;
-        this.event = event;
         if (o instanceof Message) event.getSubject().sendMessage((Message) o);
         if (o instanceof String) event.getSubject().sendMessage(o.toString());
     }
 
     private Object command(String str, long q, Contact contact) throws IOException {
-        Rule.context = contact;
-        switch (str) {
-            case "创建飞行棋":
-                return Rule.create();
-            case "掷骰子":
-            case "掷色子":
-            case "扔色子":
-            case "扔骰子":
+        str = str.trim();
+        for (String s : config.getShake()) {
+            if (str.equals(s)) {
+                Rule.context = contact;
                 Rule.shake(q, false);
                 return null;
-            case "加入飞行棋":
-                return Rule.join(q);
-            case "开始游戏":
-                return Rule.start();
-            case "/1":
-                Rule.select(q, 1, false);
-                return null;
-            case "/2":
-                Rule.select(q, 2, false);
-                return null;
-            case "/3":
-                Rule.select(q, 3, false);
-                return null;
-            case "/4":
-                Rule.select(q, 4, false);
-                return null;
-            default:
-                return null;
+            }
+
         }
+        if (str.equals(config.getCreate())) {
+            Rule.context = contact;
+            return Rule.create();
+        } else if (str.equals(config.getJoin())) {
+            Rule.context = contact;
+            return Rule.join(q);
+        } else if (str.equals(config.getStart())) {
+            Rule.context = contact;
+            return Rule.start();
+        } else if (str.equals(config.getOne())) {
+            Rule.context = contact;
+            Rule.select(q, 1, false);
+            return null;
+        } else if (str.equals(config.getTwo())) {
+            Rule.context = contact;
+            Rule.select(q, 2, false);
+            return null;
+        } else if (str.equals(config.getTree())) {
+            Rule.context = contact;
+            Rule.select(q, 3, false);
+            return null;
+        } else if (str.equals(config.getFour())) {
+            Rule.context = contact;
+            Rule.select(q, 4, false);
+            return null;
+        }
+        return null;
     }
 
     @Override

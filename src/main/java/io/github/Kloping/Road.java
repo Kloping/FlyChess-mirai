@@ -16,6 +16,7 @@ public class Road {
     public static Road YELLOW;
 
     static {
+        //==red
         RED = new Road();
         Position p1 = new Position();
         p1.setTop("52");
@@ -29,7 +30,7 @@ public class Road {
         for (int i = 61; i <= 66; i++) {
             RED.list.add(Position.ID2POSITION.get(i));
         }
-        //==
+        //==green
         GREEN = new Road();
         Position p2 = new Position();
         p2.setTop("250");
@@ -44,9 +45,9 @@ public class Road {
             GREEN.list.add(Position.ID2POSITION.get(i));
         }
         for (int i = 91; i <= 96; i++) {
-            RED.list.add(Position.ID2POSITION.get(i));
+            GREEN.list.add(Position.ID2POSITION.get(i));
         }
-        //==
+        //==yellow
         YELLOW = new Road();
         Position p3 = new Position();
         p3.setTop("898");
@@ -63,7 +64,7 @@ public class Road {
         for (int i = 81; i <= 86; i++) {
             YELLOW.list.add(Position.ID2POSITION.get(i));
         }
-        //==
+        //==blue
         BLUE = new Road();
         Position p4 = new Position();
         p4.setTop("678");
@@ -82,7 +83,7 @@ public class Road {
         }
     }
 
-    private List<Position> list = new LinkedList<>();
+    public List<Position> list = new LinkedList<>();
     private int index = 0;
 
     public Position next(int r) {

@@ -85,8 +85,8 @@ public class Pieces {
 
     private void testState() {
         if ("win".equalsIgnoreCase(this.position.getState())) {
-            Rule.win(this, color);
             win = true;
+            Rule.win(this, color);
         }
         if (this.position.getColor() == null) return;
         if (this.position.getR() != null) return;

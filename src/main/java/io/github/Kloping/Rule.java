@@ -3,16 +3,12 @@ package io.github.Kloping;
 import io.github.kloping.common.Public;
 import net.mamoe.mirai.contact.Contact;
 import net.mamoe.mirai.message.data.At;
-import net.mamoe.mirai.message.data.Image;
 import net.mamoe.mirai.message.data.MessageChainBuilder;
 
-import javax.imageio.ImageIO;
-import java.awt.image.BufferedImage;
-import java.awt.image.RenderedImage;
-import java.io.File;
 import java.io.IOException;
-import java.net.URL;
-import java.util.*;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Random;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
@@ -148,6 +144,7 @@ public class Rule {
         if (state == 1) {
             if (q == chess.getSide().getQ()) {
                 step = random.nextInt(6) + 1;
+                step = 6;
                 context.sendMessage(new At(q).plus("投掷结果:" + step));
                 if (chess.getSide().test(step)) {
                     chess.next();
@@ -155,11 +152,13 @@ public class Rule {
                     sendNow(breakOld);
                     return;
                 }
-                if ((step % 2 != 0) && !hasStepable(step)) {
-                    chess.next();
-                    tipsShake();
-                    sendNow(breakOld);
-                    return;
+                if ((step % 2 != 0)) {
+                    if (!hasStepable(step)) {
+                        chess.next();
+                        tipsShake();
+                        sendNow(breakOld);
+                        return;
+                    }
                 }
                 state = 2;
                 tipsSelect();
@@ -197,7 +196,7 @@ public class Rule {
 
     private static boolean hasStepable(int step) {
         for (Pieces piece : chess.getSide().getPieces()) {
-            if (piece.isReady()) return true;
+            if (piece.isReady() && !piece.isWin()) return true;
         }
         return false;
     }

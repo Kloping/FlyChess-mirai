@@ -30,7 +30,7 @@ public class FlyChess extends JavaPlugin {
     public static Config config = new Config();
 
     public FlyChess() {
-        super(new JvmPluginDescriptionBuilder("com.github.kloping.FlyChess", "1.8.2").info("飞行棋插件").build());
+        super(new JvmPluginDescriptionBuilder("com.github.kloping.FlyChess", "1.8.3").info("飞行棋插件").build());
     }
 
     @Override
@@ -94,19 +94,19 @@ public class FlyChess extends JavaPlugin {
             return Rule.start();
         } else if (str.equals(config.getOne())) {
             Rule.context = contact;
-            Rule.select(q, 1, false);
+            Rule.select(q, 1, true);
             return null;
         } else if (str.equals(config.getTwo())) {
             Rule.context = contact;
-            Rule.select(q, 2, false);
+            Rule.select(q, 2, true);
             return null;
         } else if (str.equals(config.getTree())) {
             Rule.context = contact;
-            Rule.select(q, 3, false);
+            Rule.select(q, 3, true);
             return null;
         } else if (str.equals(config.getFour())) {
             Rule.context = contact;
-            Rule.select(q, 4, false);
+            Rule.select(q, 4, true);
             return null;
         }
         return null;

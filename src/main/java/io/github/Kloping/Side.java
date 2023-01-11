@@ -58,16 +58,18 @@ public class Side {
     public boolean test(int step) {
         if (step == 6 && up0 == 6 && up1 == 6) {
             Rule.rollback(this);
+            up1 = -1;
+            up0 = -1;
             return true;
         }
+        up1 = up0;
+        up0 = step;
         return false;
     }
 
     public void step(int step, int index) {
         Pieces p0 = pieces[index];
         p0.jumpStep(step);
-        up1 = up0;
-        up0 = step;
     }
 
     public int getUp0() {

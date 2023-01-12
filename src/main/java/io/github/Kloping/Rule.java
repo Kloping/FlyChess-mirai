@@ -323,10 +323,13 @@ public class Rule {
     }
 
     private static boolean winAll() {
+        int r = 0;
         for (Side side : chess.getSides()) {
-            if (!side.isWin()) return false;
+            if (side.isWin()) {
+                r++;
+            }
         }
-        return true;
+        return r >= chess.getSides().size() - 1;
     }
 
     private static boolean playWin(String color) {

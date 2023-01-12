@@ -144,7 +144,6 @@ public class Rule {
         if (state == 1) {
             if (q == chess.getSide().getQ()) {
                 step = random.nextInt(6) + 1;
-                step = 6;
                 context.sendMessage(new At(q).plus("投掷结果:" + step));
                 if (chess.getSide().test(step)) {
                     chess.next();

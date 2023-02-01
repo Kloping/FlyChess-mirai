@@ -310,6 +310,9 @@ public class Rule {
         context.sendMessage("游戏结束\n耗时:" + getLoseTime());
     }
 
+    /**
+     * 已经赢了
+     */
     private static List<Long> pl = new LinkedList<>();
 
     private static void tipsList() {
@@ -335,13 +338,17 @@ public class Rule {
     private static boolean playWin(String color) {
         for (Side side : chess.getSides()) {
             if (side.getColor().equalsIgnoreCase(color)) {
+                int i = 0;
                 for (Pieces piece : side.getPieces()) {
-                    if (!piece.isWin()) {
-                        return false;
+                    if (piece.isWin()) {
+                        i++;
                     }
                 }
-                pl.add(side.getQ());
-                return true;
+                if (i == 4) {
+                    side.setWin(true);
+                    pl.add(side.getQ());
+                    return true;
+                } else return false;
             }
         }
         return false;
